@@ -94,14 +94,20 @@ const Home: React.FC = () => {
                 {
                     posts.map((item: Post) => (
                         <div key={item.id} className='border my-1 rounded py-1 px-1.5'>
-                            <h3>{item.user}</h3>
-                            <div className='flex flex-col sm:flex-row'>
+                            <h3 className='font-bold text-gray-700'>{item.user}</h3>
+                            <div className='flex flex-col sm:flex-row justify-center items-center gap-3'>
                                 <img src={item.images[0]} height='200px' width='200px' />
-                                <div className='bg-gray-100 w-[200px] h-[200px] flex justify-center items-center'>+{item.images.length - 1} others</div>
+                                {
+                                    item.images.length <= 1 ?
+                                    null :
+                                    <div className='bg-gray-100 w-[200px] h-[200px] flex justify-center items-center'>+{item.images.length - 1} others</div>
+                                }
                             </div>
                             <p>{item.content}</p>
-                            <p>{item.comments.length}</p>
-                            <span>{item.date}</span>
+                            <div className='flex gap-3 mt-2'>
+                                <span className='text-gray-400'>{item.date}</span>
+                                <p>{item.comments.length} {item.comments.length <= 1 ? 'comment' : 'comments'}</p>
+                            </div>
                         </div>
                     ))
                 }

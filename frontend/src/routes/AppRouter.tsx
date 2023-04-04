@@ -4,6 +4,8 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 import NavBar from '../components/NavBar';
+import Register from '../pages/Register';
+import { AuthRoute } from './AuthRoute';
 
 const AppRouter: React.FC = () => {
   return (
@@ -18,7 +20,15 @@ const AppRouter: React.FC = () => {
             
             {/* Auth */}
             <Route path="/login" element={
+              <AuthRoute>
                 <Login />
+              </AuthRoute>
+            } />
+
+            <Route path="/register" element={
+                <AuthRoute>
+                  <Register />
+                </AuthRoute>
             } />
 
             {/* 404 page not found */}
