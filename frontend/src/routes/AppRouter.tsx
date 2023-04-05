@@ -6,6 +6,8 @@ import NotFound from '../pages/NotFound';
 import NavBar from '../components/NavBar';
 import Register from '../pages/Register';
 import { AuthRoute } from './AuthRoute';
+import { PrivateRoute } from './PrivateRoute';
+import PostPage from '../pages/PostPage';
 
 const AppRouter: React.FC = () => {
   return (
@@ -16,6 +18,12 @@ const AppRouter: React.FC = () => {
           <Routes>
             <Route path="/" element={
                 <Home />
+            } />
+
+            <Route path="/post/:id" element={
+              <PrivateRoute>
+                <PostPage />
+              </PrivateRoute>
             } />
             
             {/* Auth */}

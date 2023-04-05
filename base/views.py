@@ -11,6 +11,13 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
 from rest_framework.views import APIView
+from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.mixins import RetrieveModelMixin
+
+from rest_framework.pagination import PageNumberPagination
+
+from .models import Post, PostComment, PostImage
+from .serializers import PostSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -44,10 +51,59 @@ class registerUser(APIView):
             message = {'detail': 'User with this email already exists'}
             return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
-class getUser(APIView):
+class getUser(RetrieveAPIView):#RetrieveAPIView: Used for read-only endpoints to represent a single model instance.
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+class postList(ListAPIView): #ListAPIView: Used for read-only endpoints to represent a collection of model instances.
+    queryset = Post.objects.all().order_by('-date')
+    serializer_class = PostSerializer
+    pagination_class = PageNumberPagination
+
+class post(APIView):
+    def get(self, request, pk):
+        post = Post.objects.get(id=pk)
+        serializer = PostSerializer(post, many=False)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        user = request.user
+        data = request.data
+        images = request.FILES.getlist('images')
+
+        if data['text'] == '':
+            return Response({'message': 'Invalid Post'}, status=status.HTTP_400_BAD_REQUEST)
+
+        post = Post.objects.create(
+            user=user,
+            content=data['text']
+        )
+
+        for image in images:
+            PostImage.objects.create(post=post, image=image)
+
+        serializer = PostSerializer(post, many=False)
+        return Response(serializer.data)
+
+"""class getUser(mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user, many=False)
-        return Response(serializer.data)
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+    
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)"""

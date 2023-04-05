@@ -1,9 +1,13 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { logout } from '../reducers/auth';
 
 const NavBar: React.FC = () => {
 
-    const isAuthenticated = true;
+    const { email } = useSelector((state: any) => state.auth);
+
+    const dispatch = useDispatch();
 
     return (
         <nav className='bg-slate-100'>
@@ -14,13 +18,16 @@ const NavBar: React.FC = () => {
                 <div>
                     <ul className='flex items-center'>
                         {
-                            isAuthenticated ?
+                            email ?
                             <>
                                 <li className='mx-1 sm:mx-2 md:mx-3 ease duration-100 hover:text-gray-500'>
-                                    <Link to='/'>Hi, <span className='font-bold text-gray-500 hover:text-gray-400'>Khalid</span></Link>
+                                    <Link to='/'>Hi, <span className='font-bold text-gray-500 hover:text-gray-400'>{email}</span></Link>
                                 </li>
                                 <li className='mx-1 sm:mx-2 md:mx-3'>
-                                    <button className='bg-red-500 ease duration-100 hover:bg-red-600 text-[#eee] font-bold rounded py-1 px-2'>Logout</button>
+                                    <button
+                                        className='bg-red-500 ease duration-100 hover:bg-red-600 text-[#eee] font-bold rounded py-1 px-2'
+                                        onClick={() => dispatch(logout())}
+                                    >Logout</button>
                                 </li>
                             </> :
                             <>
