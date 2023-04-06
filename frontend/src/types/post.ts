@@ -25,6 +25,6 @@ export interface Post {
     content: string,
     images: Image[],
     likes: number,
-    comments: Comment[],
+    comments: number,
     date: string
 }

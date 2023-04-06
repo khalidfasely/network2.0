@@ -11,13 +11,12 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView, RetrieveAPIView, ListAPIView
-from rest_framework.mixins import RetrieveModelMixin
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 
 from rest_framework.pagination import PageNumberPagination
 
 from .models import Post, PostComment, PostImage
-from .serializers import PostSerializer
+from .serializers import PostSerializer, CommentSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -67,6 +66,16 @@ class postList(ListAPIView): #ListAPIView: Used for read-only endpoints to repre
     queryset = Post.objects.all().order_by('-date')
     serializer_class = PostSerializer
     pagination_class = PageNumberPagination
+
+class commentList(ListAPIView): #ListAPIView: Used for read-only endpoints to represent a collection of model instances.
+    #queryset = PostComment.objects.filter(post=post).order_by('-date')
+    serializer_class = CommentSerializer
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        post = Post.objects.get(pk=self.kwargs.get('pk'))
+        comments = PostComment.objects.filter(post=post).order_by('-date')
+        return comments
 
 class post(APIView):
     def get(self, request, pk):
@@ -126,17 +135,21 @@ class post(APIView):
         except:
             return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
 
-"""class getUser(mixins.RetrieveModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.DestroyModelMixin,
-                    generics.GenericAPIView):
-    permission_classes = [IsAuthenticated]
+class comment(APIView):
+    def post(self, request, postId):
+        user = request.user
+        data = request.data
 
-    serializer_class = UserSerializer
+        if data['text'] == '':
+            return Response({'message': 'Invalid Comment'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
-    
+        post = Post.objects.get(pk=postId)
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)"""
+        comment = PostComment.objects.create(
+            user=user,
+            post=post,
+            content=data['text']
+        )
+
+        serializer = CommentSerializer(comment, many=False)
+        return Response(serializer.data)

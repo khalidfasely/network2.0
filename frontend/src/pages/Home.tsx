@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 
 import { getPosts } from '../actions/getPosts';
 import { Post } from '../types/post';
-import { createPost } from '../actions/createPost';
 import { Link } from 'react-router-dom';
 import PostForm from '../components/PostForm';
 
@@ -75,7 +74,7 @@ const Home: React.FC = () => {
                                 <p className='my-3'>{post.content}</p>
                                 <div className='flex gap-3 mt-2'>
                                     <span className='text-gray-400'>{new Date(post.date).toLocaleString('en-US')}</span>
-                                    <p>{post.comments.length} {post.comments.length <= 1 ? 'comment' : 'comments'}</p>
+                                    <p>{post.comments} {post.comments <= 1 ? 'comment' : 'comments'}</p>
                                 </div>
                             </Link>
                         </div>

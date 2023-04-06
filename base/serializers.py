@@ -46,8 +46,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = obj.comments.all()
-        serializer = CommentSerializer(comments, many=True)
-        return serializer.data
+        return comments.count()
 
     def get_images(self, obj):
         images = obj.images.all()

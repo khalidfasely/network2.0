@@ -33,7 +33,6 @@ const DeleteModal: React.FC<Props> = ({ deleteModalOpen, setDeleteModalOpen, id 
                 return
             }
 
-            console.log(res[0])
             setDeleteModalOpen(false);
             navigate('/');
         })

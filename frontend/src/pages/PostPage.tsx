@@ -5,11 +5,13 @@ import { getPost } from '../actions/getPost';
 import EditModal from '../components/EditModal';
 import DeleteModal from '../components/DeleteModal';
 import { useSelector } from 'react-redux';
+import { getComments } from '../actions/getComments';
+import { addComment } from '../actions/addComment';
 
 const defaultState: Post = {
     id: 0,
     images: [],
-    comments: [],
+    comments: 2,
     content: 'w-[80%] sm:w-[75%] md:w-[65%] m-auto mt-4',
     date: '2023',
     likes: 0,
@@ -22,9 +24,14 @@ const defaultState: Post = {
 }
 
 const PostPage: React.FC = () => {
-
     const [ post, setPost ] = useState<Post>(defaultState);
     const [ error, setError ] = useState<string>('');
+
+    const [ comments, setComments ] = useState<Comment[]>([]);
+    const [ next, setNext ] = useState<string | null>(null);
+
+    const [ newComment, setNewComment ] = useState<string>('');
+    const [commentError, setCommentError] = useState<string>('');
 
     const [ editModalOpen, setEditModalOpen ] = useState<boolean>(false);
     const [ deleteModalOpen, setDeleteModalOpen ] = useState<boolean>(false);
@@ -47,8 +54,54 @@ const PostPage: React.FC = () => {
                 setPost(res[0]);
                 setChoosenImage(res[0].images[0]);
             })
+            .then(() => {
+                getComments(Number(id))
+                .then((res: any) => {
+                    if (res[1]) {
+                        console.log(res[1])
+                        return
+                    }
+
+                    setComments(res[0].results);
+                    setNext(res[0].next);
+                })
+            })
         }
     }, [id])
+
+    const handleLoadMoreComments = () => {
+        getComments(Number(id), next)
+        .then((res: any) => {
+            if (res[1]) {
+                setError(res[1].response ? res[1].response?.data?.message : res[1].message);
+                return
+            }
+
+            setComments((prev: Comment[]) => [...prev, ...res[0].results]);
+            setNext(res[0].next);
+        })
+    }
+
+    const handleAddComment = (e: any) => {
+        e.preventDefault();
+
+        if (newComment === '') {
+            setCommentError('Fill out the input!');
+            return
+        }
+
+        addComment({text: newComment}, Number(id))
+        .then((res: any) => {
+            if (res[1]) {
+                setCommentError(res[1].response ? res[1].response?.data?.message : res[1].message);
+                return
+            }
+
+            setComments((prev: Comment[]) => [res[0], ...prev]);
+            setNewComment('');
+            setCommentError('');
+        })
+    }
 
     return (
         <div className='w-[80%] sm:w-[75%] md:w-[65%] m-auto mt-4'>
@@ -98,15 +151,28 @@ const PostPage: React.FC = () => {
 
             {/*Comments */}
             <h3 className='text-lg font-bold mt-3 mb-2'>Comments:</h3>
+            <div className='my-5'>
+                <p>Add a comment:</p>
+                {commentError ? <p className='text-center text-red-600 font-bold'>{commentError}</p> : null}
+                <form onSubmit={handleAddComment}>
+                    <textarea
+                        placeholder='Comment on this post'
+                        className='w-full border rounded h-12 resize-none focus:outline-slate-300 py-0.5 px-1'
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                    />
+                    <button className='bg-blue-500 easse duration-200 hover:bg-blue-700 w-full rounded text-[#eee] py-1'>Add Comment</button>
+                </form>
+            </div>
             <div>
                 {
-                    post.comments.length === 0 ?
+                    comments.length === 0 ?
                     <p className='border text-center font-bold text-gray-400 py-1'>No comments</p> :
                     <>
                         {
-                            post.comments.map((comment: Comment) => (
-                                <div key={comment.id}>
-                                    <h5>{comment.user.email}</h5>
+                            comments.map((comment: Comment) => (
+                                <div key={comment.id} className='my-1 border-b'>
+                                    <h5 className='text-sm font-bold'>{comment.user.email}</h5>
                                     <p>{comment.content}</p>
                                     <span className='text-gray-400 text-sm'>{new Date(comment.date).toLocaleString('en-US')}</span>
                                 </div>
@@ -114,6 +180,18 @@ const PostPage: React.FC = () => {
                         }
                     </>
                 }
+                <div>
+                    {
+                        next ?
+                        <div className='flex justify-center my-5'>
+                            <button
+                                className='rounded text-[#eee] bg-blue-500 ease duration-150 hover:bg-blue-600 py-1 px-2'
+                                onClick={handleLoadMoreComments}
+                            >Load more</button>
+                        </div> :
+                        null
+                    }
+                </div>
             </div>
         </div>
     )
