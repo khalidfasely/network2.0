@@ -5,17 +5,13 @@ import { getPosts } from '../actions/getPosts';
 import { Post } from '../types/post';
 import { createPost } from '../actions/createPost';
 import { Link } from 'react-router-dom';
+import PostForm from '../components/PostForm';
 
 const Home: React.FC = () => {
 
     const [ posts, setPosts ] = useState<Post[]>([]);
     const [ next, setNext ] = useState<string | null>(null);
 
-    //form state
-    const [ text, setText ] = useState<string>('');
-    const [ images, setImages ] = useState<any>();
-
-    const [ formError, setFormError ] = useState<string>('');
     const [ error, setError ] = useState<string>('');
 
     const { email } = useSelector((state: any) => state.auth);
@@ -46,68 +42,12 @@ const Home: React.FC = () => {
         })
     }
 
-    const handleNewPost = (e: any) => {
-        e.preventDefault();
-
-        if (text === "") {
-            setFormError('Make sure to fill text input!')
-            return
-        }
-
-        const formData = new FormData();
-
-        if (images) {
-            for (let i = 0; i < images.length; i++) {
-                formData.append('images', images[i]);
-            }
-        }
-        formData.append('text', text);
-
-        createPost(formData)
-        .then((res: any) => {
-            if (res[1]) {
-                setFormError(res[1].response ? res[1].response?.data?.message : res[1].message);
-                return
-            }
-
-            setPosts((prev: Post[]) => [res[0], ...prev])
-
-            setText('');
-            setImages(null);
-
-            setFormError('');
-        })
-    }
-
     return (
         <div className='w-[80%] sm:w-[75%] md:w-[65%] m-auto mt-4'>
             {
                 email ?
                 <div className='border'>
-                    <form onSubmit={handleNewPost} className='flex flex-col m-1'>
-                        {formError ? <p className='text-center italic text-red-700 font-bold'>{formError}</p> : null}
-                        <textarea
-                            className='border resize-none h-16 px-3 py-1 focus:outline-slate-500'
-                            placeholder='Share your thoughts!'
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                        />
-                        <div className='flex flex-col my-1'>
-                            <label htmlFor='images' className='block text-sm font-medium text-gray-900 dark:text-white'>Add Images: </label>
-                            <input
-                                className="block w-full text-sm text-gray-900 border border-gray-300 cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                type='file'
-                                id='images'
-                                name='images'
-                                onChange={(e: any) => setImages(e.target.files)}
-                                multiple accept="image/png, image/jpeg"
-                            />
-                            <p className="text-sm text-gray-500 dark:text-gray-300">PNG or JPG</p>
-                        </div>
-                        <button
-                            className='my-1 mx-1 md:mx-2 bg-slate-500 ease duration-200 hover:bg-slate-600 text-[#eee] rounded py-2'
-                        >Add Post</button>
-                    </form>
+                    <PostForm setPosts={setPosts} />
                 </div> :
                 null
             }
@@ -123,7 +63,7 @@ const Home: React.FC = () => {
                                 <div className='flex flex-col sm:flex-row justify-center items-center gap-3'>
                                     {
                                         post.images.length > 0 ?
-                                        <img src={'http://127.0.0.1:8000' + post.images[0].image} height='200px' width='200px' /> :
+                                        <img src={'http://127.0.0.1:8000' + post.images[0].image} height='200px' width='200px' alt='picture with post' /> :
                                         null
                                     }
                                     {

@@ -11,4 +11,5 @@ urlpatterns = [
 
     path('posts/', views.postList.as_view(), name='posts'),
     path('post/', views.post.as_view(), name='post'),
+    path('post/<int:pk>', views.post.as_view(), name='post'),
 ]

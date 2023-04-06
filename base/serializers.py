@@ -19,9 +19,16 @@ class UserSerializerWithToken(UserSerializer):
         return str(token.access_token)
     
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = PostComment
         fields = '__all__'
+
+    def get_user(self, obj):
+        user = obj.user
+        serializer = UserSerializer(user, many=False)
+        return serializer.data
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:

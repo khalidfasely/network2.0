@@ -93,6 +93,39 @@ class post(APIView):
         serializer = PostSerializer(post, many=False)
         return Response(serializer.data)
 
+    def put(self, request, pk):
+        data = request.data
+        images = request.FILES.getlist('images')
+
+        if data['text'] == '':
+            return Response({'message': 'Invalid Post'}, status=status.HTTP_400_BAD_REQUEST)
+
+        post = Post.objects.get(pk=pk)
+
+        if request.user != post.user:
+            return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        post.content = data['text']
+
+        post.save()
+
+        for image in images:
+            PostImage.objects.create(post=post, image=image)
+
+        serializer = PostSerializer(post, many=False)
+        return Response(serializer.data)
+
+
+    def delete(self, request, pk):
+        try:
+            post = Post.objects.get(pk=pk)
+            if post.user != request.user:
+                return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+            post.delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+
 """class getUser(mixins.RetrieveModelMixin,
                     mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin,
