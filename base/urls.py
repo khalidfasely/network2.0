@@ -14,5 +14,5 @@ urlpatterns = [
     path('post/<int:pk>', views.post.as_view(), name='post'),
 
     path('comments/<int:pk>', views.commentList.as_view(), name='comments'),
-    path('comment/<int:postId>', views.comment.as_view(), name='comment'),
+    path('comment/<int:id>', views.comment.as_view(), name='comment'),
 ]

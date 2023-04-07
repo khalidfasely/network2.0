@@ -7,6 +7,7 @@ import DeleteModal from '../components/DeleteModal';
 import { useSelector } from 'react-redux';
 import { getComments } from '../actions/getComments';
 import { addComment } from '../actions/addComment';
+import DeleteCommentModal from '../components/DeleteCommentModal';
 
 const defaultState: Post = {
     id: 0,
@@ -35,6 +36,9 @@ const PostPage: React.FC = () => {
 
     const [ editModalOpen, setEditModalOpen ] = useState<boolean>(false);
     const [ deleteModalOpen, setDeleteModalOpen ] = useState<boolean>(false);
+
+    const [ editCommentModalOpen, setEditCommentModalOpen ] = useState<boolean>(false);
+    const [ deleteCommentModalOpen, setDeleteCommentModalOpen ] = useState<boolean>(false);
 
     const [choosenImage, setChoosenImage] = useState<Image | undefined>();
 
@@ -172,9 +176,27 @@ const PostPage: React.FC = () => {
                         {
                             comments.map((comment: Comment) => (
                                 <div key={comment.id} className='my-1 border-b'>
-                                    <h5 className='text-sm font-bold'>{comment.user.email}</h5>
+                                    <div className='flex justify-between'>
+                                        <h5 className='text-sm font-bold'>{comment.user.email}</h5>
+                                        <div className='flex'>
+                                            {
+                                                email === comment.user.email ?
+                                                <div className='flex gap-1 mx-0.5'>
+                                                    <button onClick={() => setDeleteCommentModalOpen(true)} className='text-red-500 ease duration-100 hover:text-red-600'>Delete</button>
+                                                    <button onClick={() => setEditCommentModalOpen(true)} className='text-blue-500 ease duration-100 hover:text-blue-600'>Edit</button>
+                                                </div> :
+                                                null
+                                            }
+                                        </div>
+                                    </div>
                                     <p>{comment.content}</p>
                                     <span className='text-gray-400 text-sm'>{new Date(comment.date).toLocaleString('en-US')}</span>
+                                    <DeleteCommentModal
+                                        deleteCommentModalOpen={deleteCommentModalOpen}
+                                        setDeleteCommentModalOpen={setDeleteCommentModalOpen}
+                                        id={comment.id}
+                                        setComments={setComments}
+                                    />
                                 </div>
                             ))
                         }

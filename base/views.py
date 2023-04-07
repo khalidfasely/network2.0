@@ -136,14 +136,14 @@ class post(APIView):
             return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
 
 class comment(APIView):
-    def post(self, request, postId):
+    def post(self, request, id):
         user = request.user
         data = request.data
 
         if data['text'] == '':
             return Response({'message': 'Invalid Comment'}, status=status.HTTP_400_BAD_REQUEST)
 
-        post = Post.objects.get(pk=postId)
+        post = Post.objects.get(pk=id)
 
         comment = PostComment.objects.create(
             user=user,
@@ -153,3 +153,15 @@ class comment(APIView):
 
         serializer = CommentSerializer(comment, many=False)
         return Response(serializer.data)
+    
+    def delete(self, request, id):
+        try:
+            comment = PostComment.objects.get(pk=id)
+            if comment.user != request.user:
+                return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+            comment.delete()
+            return Response(status=status.HTTP_200_OK)
+        except:
+            return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+
+
