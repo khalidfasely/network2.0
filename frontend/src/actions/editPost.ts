@@ -6,7 +6,7 @@ export const editPost: (dataSent: object, id: number) => Promise<object> = async
     try {
         const config = {
             headers: {
-                'Content-type': 'application/json',
+                'Content-type': 'multipart/form-data',
                 Authorization: `Bearer ${token}`
             }
         }

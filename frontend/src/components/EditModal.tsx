@@ -25,7 +25,6 @@ const EditModal: React.FC<Props> = ({ editModalOpen, setEditModalOpen, text, id,
           transform: 'translate(-50%, -50%)',
         },
     };
-
     return (
         <Modal
             isOpen={editModalOpen}
