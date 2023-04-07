@@ -154,6 +154,25 @@ class comment(APIView):
         serializer = CommentSerializer(comment, many=False)
         return Response(serializer.data)
     
+    def put(self, request, id):
+        user = request.user
+        data = request.data
+
+        if data['text'] == '':
+            return Response({'message': 'Invalid Comment'}, status=status.HTTP_400_BAD_REQUEST)
+
+        comment = PostComment.objects.get(pk=id)
+
+        if user != comment.user:
+            return Response({"message": "Something went wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        comment.content = data['text']
+
+        comment.save()
+
+        serializer = CommentSerializer(comment, many=False)
+        return Response(serializer.data)
+    
     def delete(self, request, id):
         try:
             comment = PostComment.objects.get(pk=id)

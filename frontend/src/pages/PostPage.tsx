@@ -8,6 +8,8 @@ import { useSelector } from 'react-redux';
 import { getComments } from '../actions/getComments';
 import { addComment } from '../actions/addComment';
 import DeleteCommentModal from '../components/DeleteCommentModal';
+import EditCommentModal from '../components/EditCommentModal';
+import CommentForm from '../components/CommentForm';
 
 const defaultState: Post = {
     id: 0,
@@ -30,9 +32,6 @@ const PostPage: React.FC = () => {
 
     const [ comments, setComments ] = useState<Comment[]>([]);
     const [ next, setNext ] = useState<string | null>(null);
-
-    const [ newComment, setNewComment ] = useState<string>('');
-    const [commentError, setCommentError] = useState<string>('');
 
     const [ editModalOpen, setEditModalOpen ] = useState<boolean>(false);
     const [ deleteModalOpen, setDeleteModalOpen ] = useState<boolean>(false);
@@ -86,27 +85,6 @@ const PostPage: React.FC = () => {
         })
     }
 
-    const handleAddComment = (e: any) => {
-        e.preventDefault();
-
-        if (newComment === '') {
-            setCommentError('Fill out the input!');
-            return
-        }
-
-        addComment({text: newComment}, Number(id))
-        .then((res: any) => {
-            if (res[1]) {
-                setCommentError(res[1].response ? res[1].response?.data?.message : res[1].message);
-                return
-            }
-
-            setComments((prev: Comment[]) => [res[0], ...prev]);
-            setNewComment('');
-            setCommentError('');
-        })
-    }
-
     return (
         <div className='w-[80%] sm:w-[75%] md:w-[65%] m-auto mt-4'>
             {error ? <p className='text-center italic text-red-700 font-bold'>{error}</p> : null}
@@ -157,16 +135,7 @@ const PostPage: React.FC = () => {
             <h3 className='text-lg font-bold mt-3 mb-2'>Comments:</h3>
             <div className='my-5'>
                 <p>Add a comment:</p>
-                {commentError ? <p className='text-center text-red-600 font-bold'>{commentError}</p> : null}
-                <form onSubmit={handleAddComment}>
-                    <textarea
-                        placeholder='Comment on this post'
-                        className='w-full border rounded h-12 resize-none focus:outline-slate-300 py-0.5 px-1'
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                    />
-                    <button className='bg-blue-500 easse duration-200 hover:bg-blue-700 w-full rounded text-[#eee] py-1'>Add Comment</button>
-                </form>
+                <CommentForm setComments={setComments} id={Number(id)} />
             </div>
             <div>
                 {
@@ -196,6 +165,13 @@ const PostPage: React.FC = () => {
                                         setDeleteCommentModalOpen={setDeleteCommentModalOpen}
                                         id={comment.id}
                                         setComments={setComments}
+                                    />
+                                    <EditCommentModal
+                                        editCommentModalOpen={editCommentModalOpen}
+                                        setEditCommentModalOpen={setEditCommentModalOpen}
+                                        id={comment.id}
+                                        setComments={setComments}
+                                        text={comment.content}
                                     />
                                 </div>
                             ))
