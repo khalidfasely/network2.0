@@ -6,7 +6,6 @@ import EditModal from '../components/EditModal';
 import DeleteModal from '../components/DeleteModal';
 import { useSelector } from 'react-redux';
 import { getComments } from '../actions/getComments';
-import { addComment } from '../actions/addComment';
 import DeleteCommentModal from '../components/DeleteCommentModal';
 import EditCommentModal from '../components/EditCommentModal';
 import CommentForm from '../components/CommentForm';

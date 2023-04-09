@@ -40,15 +40,6 @@ const NavBar: React.FC = () => {
                             </>
                         }
                     </ul>
-                    {/**<div className='mx-1'>
-                        <Link to='/'>Home</Link>
-                    </div>
-                    <div className='mx-1'>
-                        <Link to='/login'>Login</Link>
-                    </div>
-                    <div className='mx-1'>
-                        <Link to='/something'>Notfound</Link>
-                    </div> */}
                 </div>
             </div>
         </nav>
