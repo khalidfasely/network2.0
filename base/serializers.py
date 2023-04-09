@@ -18,6 +18,11 @@ class UserSerializerWithToken(UserSerializer):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
     
+class UserSerializerWithPass(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+    
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField(read_only=True)
 

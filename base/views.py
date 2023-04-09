@@ -1,8 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from django.contrib.auth.models import User
-from base.serializers import UserSerializer, UserSerializerWithToken
+from base.serializers import UserSerializer, UserSerializerWithToken, UserSerializerWithPass
 # Create your views here.
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -11,7 +10,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView
 
 from rest_framework.pagination import PageNumberPagination
 
@@ -32,43 +31,35 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
-class registerUser(APIView):
+class registerUser(CreateAPIView):
+    serializer_class = UserSerializerWithPass
 
-    def post(self, request):
-        data = request.data
-        try:
-            user = User.objects.create(
-                first_name=data['name'],
-                username=data['email'],
-                email=data['email'],
-                password=make_password(data['password'])
-            )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
-            serializer = UserSerializerWithToken(user, many=False)
-            return Response(serializer.data)
-        except:
-            message = {'detail': 'User with this email already exists'}
-            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        user = serializer.save()
+        user.password = make_password(user.password)
+        user.save()
 
-class getUser(RetrieveAPIView):#RetrieveAPIView: Used for read-only endpoints to represent a single model instance.
+class getUser(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
-    def get_object(self):
+    def get_user(self):
         return self.request.user
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
+    def retrieve(self, request):
+        user = self.get_user()
+        serializer = self.get_serializer(user)
         return Response(serializer.data)
 
-class postList(ListAPIView): #ListAPIView: Used for read-only endpoints to represent a collection of model instances.
+class postList(ListAPIView):
     queryset = Post.objects.all().order_by('-date')
     serializer_class = PostSerializer
     pagination_class = PageNumberPagination
 
-class commentList(ListAPIView): #ListAPIView: Used for read-only endpoints to represent a collection of model instances.
-    #queryset = PostComment.objects.filter(post=post).order_by('-date')
+class commentList(ListAPIView):
     serializer_class = CommentSerializer
     pagination_class = PageNumberPagination
 

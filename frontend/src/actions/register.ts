@@ -17,7 +17,7 @@ export const registerApi: (parameter: Parameters) => Promise<object> = async ({u
         
         const { data } = await axios.post(
             'http://127.0.0.1:8000/api/register/',
-            {'name': username, 'email': email, 'password': password, 'confirmation': confirmation},
+            {'name': username, 'username': email, 'email': email, 'password': password, 'confirmation': confirmation},
             config
         )
 
